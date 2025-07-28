@@ -1,9 +1,6 @@
-from datetime import datetime
-
 from flask import Flask, render_template, request, redirect, url_for, send_file, send_from_directory, flash
 from werkzeug.utils import secure_filename
 import uuid
-
 from google.cloud import texttospeech_v1
 import google.generativeai as genai
 import io
@@ -13,12 +10,11 @@ credential_path = r"service_account.json"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
 app = Flask(__name__)
-app.secret_key = '11477asdf'
+app.secret_key = 'key'
 
-genai.configure(api_key="AIzaSyDdDWRjpOXDiPT7BsRbV2dXpmEyppIR6Sk")
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 client = texttospeech_v1.TextToSpeechClient()
-client2 = speech.SpeechClient()
 
 # Configure upload folder
 UPLOAD_FOLDER = '/tmp/uploads'
@@ -156,8 +152,6 @@ def upload_audio():
 
     return redirect('/')
 
-
-
 @app.route('/tts/<filename>')
 def uploaded_tts_file(filename):
     return send_from_directory(app.config['TTS_FOLDER'], filename)
@@ -171,4 +165,4 @@ def scripts_js():
     return send_file('./script.js')
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True)    
