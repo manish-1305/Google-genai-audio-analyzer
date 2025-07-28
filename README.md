@@ -6,7 +6,7 @@ The application leverages Google’s generative AI capabilities to create a seam
 
 Web application for audio transcription and sentiment analysis using Google's Generative AI.
 
-**Live Demo:** [https://genai-432569728156.us-east1.run.app/](https://genai-432569728156.us-east1.run.app/)
+![app image](images/app_image.png)
 
 ## Features
 
