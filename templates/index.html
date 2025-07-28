@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Recorder</title>
+    <style>
+        /* Style the footer */
+        footer {
+            text-align: center;
+            margin-top: 90px;
+        }
+
+        /* Style for scroller in Record and Upload section */
+        .scroll-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .text-content {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            display: none;  /* Initially hide the content */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 style="text-align: center; margin-top: 20px;">Conversational AI</h2>
+        <h3 style="text-align: center; margin-top: 20px;">Using Multimodel LLMs</h3>
+
+        <div style="display: flex; justify-content: center;">
+            <table style="width:100%; max-width: 1200px; border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <td style="width:50%; padding: 10px;">
+                            <h2>Record and Upload Audio</h2>
+                            <button id="record">Record</button>
+                            <button id="stop">Stop</button>
+                            <span id="timer">00:00</span>
+                            <audio id="audio"></audio>
+                            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="audio_data" id="audioData">
+                            </form>
+                            <script src="script.js"></script>
+                            <hr>
+                            <h2>Generated Text Response with its Audio</h2>
+                            <div class="scroll-container" style="width: 100%; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                                <ul style="list-style-type: none; padding: 0;">
+                                    {% for tts_file in tts_files %}
+                                    <li style="margin-bottom: 15px;">
+                                        <!-- Audio player for each TTS audio file -->
+                                        <audio controls>
+                                            <source src="{{ url_for('uploaded_tts_file', filename=tts_file) }}" type="audio/wav">
+                                            Your browser does not support the audio element.
+                                        </audio><br>
+                                        <!-- Display the file name -->
+                                        {{ tts_file }}
+                                        
+                                        <button onclick="fetchTextContent('{{ url_for('uploaded_tts_file', filename=tts_file.replace('.wav', '.txt')) }}', this)"
+                                                style="padding: 6px 16px; background-color: #BEBEBE; color: black; border: none; border-radius: 3px;">
+                                            Text Response
+                                        </button>
+                                        
+                                        <!-- Text content container that will display the transcript and sentiment below the button -->
+                                        <div class="text-content" id="content-{{ tts_file.replace('.wav', '') }}"></div>
+                                    </li>
+                                    {% else %}
+                                    <p>No Wav files generated yet.</p>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p>Manish Sagar</p>
+    </footer>
+
+    <script>
+        // Function to fetch and toggle the visibility of the content of the .txt file directly below the button
+        function fetchTextContent(url, button) {
+            const contentDiv = button.nextElementSibling;  // Get the associated content div
+
+            if (contentDiv.style.display === 'block') {
+                // If content is already displayed, hide it
+                contentDiv.style.display = 'none';
+            } else {
+                // Otherwise, fetch the content and display it
+                fetch(url)
+                    .then(response => response.text())
+                    .then(data => {
+                        contentDiv.innerHTML = `<pre>${data}</pre>`;  // Insert the content
+                        contentDiv.style.display = 'block';  // Show the content
+                    })
+                    .catch(error => {
+                        console.error('Error fetching text content:', error);
+                        contentDiv.innerHTML = `<p style="color: red;">Failed to load text content.</p>`;
+                        contentDiv.style.display = 'block';  // Show the error message
+                    });
+            }
+        }
+    </script>
+
+</body>
+</html>
